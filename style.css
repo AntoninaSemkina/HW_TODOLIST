@@ -9,3 +9,14 @@
     background-color: red;
     color: white;
 }
+.modal{
+    padding: 20px;
+    background-color: lightgreen;
+}
+.hidden{
+    display: none;
+}
+.edit-btn{
+    background-color: blue;
+    color: white;
+}

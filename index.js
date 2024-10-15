@@ -4,6 +4,11 @@ const taskNameInput= document.getElementById('taskName')
 const addBtn= document.getElementById('addBtn')
 const container =document.getElementById('container')
 
+const modal= document.getElementById('modal')
+const modalId= document.getElementById('modalId')
+const modalName= document.getElementById('modalName')
+const saveBtn= document.getElementById('saveBtn')
+
 addBtn.addEventListener('click',()=>{
     const newTask = {
         id: taskId++,
@@ -13,7 +18,17 @@ taskNameInput.value=''
 tasks.push(newTask)
 render()
 })
-
+saveBtn.addEventListener('click',()=>{
+    const newId = modalId.value
+    const newName= modalName.value
+    tasks.map((task)=>{
+        if (task.id === Number(newId)){
+            task.name= newName
+        }
+    })
+    render()
+    modal.classList.add('hidden')
+})
 const render = () => {
     container.innerHTML=''
     tasks.map((task)=>{
@@ -29,7 +44,17 @@ const render = () => {
             render()
         }
 
+        const editBtn = document.createElement('button')
+        editBtn.classList.add('edit-btn')
+        editBtn.innerText= "Редактировать"
+        editBtn.onclick=()=>{
+            modal.classList.remove('hidden')
+            modalId.value=task.id
+            modalName.value=task.name
+        }
+
         taskDiv.appendChild(deleteBtn)
+        taskDiv.appendChild(editBtn)
 
         container.appendChild(taskDiv)
     })
