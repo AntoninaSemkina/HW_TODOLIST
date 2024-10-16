@@ -12,11 +12,12 @@ const saveBtn= document.getElementById('saveBtn')
 addBtn.addEventListener('click',()=>{
     const newTask = {
         id: taskId++,
-        name: taskNameInput.value
+        name: taskNameInput.value,
+        completed: false
     }
-taskNameInput.value=''
-tasks.push(newTask)
-render()
+    taskNameInput.value=''
+    tasks.push(newTask)
+    render()
 })
 saveBtn.addEventListener('click',()=>{
     const newId = modalId.value
@@ -24,17 +25,27 @@ saveBtn.addEventListener('click',()=>{
     tasks.map((task)=>{
         if (task.id === Number(newId)){
             task.name= newName
+            task.completed= false
         }
     })
     render()
     modal.classList.add('hidden')
 })
 const render = () => {
+    tasks.sort((a, b) => a.completed - b.completed);
+
     container.innerHTML=''
     tasks.map((task)=>{
         const taskDiv=document.createElement('div')
         taskDiv.classList.add("task-div")
-        taskDiv.innerText = task.name
+        taskDiv.style.backgroundColor = task.completed ? 'green' : 'rgb(205, 235, 221)';//изменение цвета фона в зависимости от статуса задачи
+
+        const taskContent = document.createElement('div');
+        taskContent.classList.add('task-content');
+        taskContent.innerText = task.name;
+
+        const taskActions = document.createElement('div');
+        taskActions.classList.add('task-actions');
 
         const deleteBtn = document.createElement('button')
         deleteBtn.classList.add('delete-btn')
@@ -52,9 +63,27 @@ const render = () => {
             modalId.value=task.id
             modalName.value=task.name
         }
+        
+        taskDiv.ondblclick = () => {
+            modal.classList.remove('hidden');
+            modalId.value = task.id;
+            modalName.value = task.name;
+        };
 
-        taskDiv.appendChild(deleteBtn)
-        taskDiv.appendChild(editBtn)
+        const statusBtn = document.createElement('button')
+        statusBtn.classList.add('status-btn')
+        statusBtn.innerText = task.completed ? 'Задача выполнена' : 'Выполнить задачу';
+        statusBtn.onclick = () => {
+            task.completed = !task.completed;
+            render();
+        };
+        
+        taskActions.appendChild(statusBtn)
+        taskActions.appendChild(deleteBtn)
+        taskActions.appendChild(editBtn)
+
+        taskDiv.appendChild(taskContent)
+        taskDiv.appendChild(taskActions)
 
         container.appendChild(taskDiv)
     })
