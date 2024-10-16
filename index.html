@@ -9,17 +9,35 @@
     <title>ToDoList</title>
 </head>
 <body>
-    <div class="create-task">
-        <textarea type="text" id="taskName" rows="10"></textarea>
-        <button id="addBtn">Добавить</button>
-    </div>
-    <div class="modal hidden" id="modal">
-        <input type="text" id="modalId" disabled>
-        <textarea type="text" id="modalName"></textarea>
-        <button id="saveBtn">Сохранить</button>
-    </div>
-    <div class="container" id="container">
-    </div>
-    <script src="./index.js"></script>
+    <header>
+        <div class="header__container">
+            <div class="header__content">
+                <div class="logo">ToDoList</div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="block1">
+            <h2>Добавить новую задачу</h2>
+        <div class="create-task">
+            <textarea type="text" id="taskName" rows="10"></textarea>
+            <button id="addBtn">Сохранить</button>
+        </div>
+        </div>
+        
+        <div class="modal hidden" id="modal">
+            <input type="text" id="modalId" disabled>
+            <textarea type="text" id="modalName"></textarea>
+            <button id="saveBtn">Сохранить</button>
+        </div>
+        <div class="filter-btn">
+            <button id="showAllBtn">Все задачи</button>
+            <button id="showCompletedBtn">Выполненные задачи</button>
+            <button id="showUncompletedBtn">Невыполненные задачи</button>
+        </div>
+        <div class="container" id="container">
+        </div>
+        <script src="./index.js"></script>
+    </main>
 </body>
 </html>
