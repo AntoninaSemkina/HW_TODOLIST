@@ -82,17 +82,21 @@ addBtn.addEventListener('click', () => {
 
 saveBtn.addEventListener('click', () => {
     const newId = modalId.value;
-    const newName = modalName.value.trim()
+    const newName = modalName.value.trim();
     tasks = tasks.map(task => {
         if (task.id === Number(newId)) {
             task.name = newName;
+
+            if (task.completed) {
+                task.completed = false;
+            }
         }
         return task;
     });
     saveTasksToLocalStorage();
     render();
     modal.classList.add('hidden');
-});
+}); 
 
 const saveTasksToLocalStorage = () => {
     const currentUser = localStorage.getItem('userName') || 'guest'; 
