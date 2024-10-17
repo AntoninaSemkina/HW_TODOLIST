@@ -11,14 +11,41 @@ const modalId= document.getElementById('modalId')
 const modalName= document.getElementById('modalName')
 const saveBtn= document.getElementById('saveBtn')
 
-const autoResizeTextarea = (textarea) => {
-    textarea.style.height = 'auto'; // Сброс высоту
-    textarea.style.height = textarea.scrollHeight + 'px'; //высотa в зависимости от высоты содержимого
+const userNameDisplay = document.getElementById('userNameDisplay');
+const nameInput = document.getElementById('nameInput');
+const saveNameBtn = document.getElementById('saveNameBtn');
+const nameDisplay = document.getElementById('nameDisplay');
+
+
+window.onload = () => {
+    const savedTasks = localStorage.getItem('tasks');
+    if (savedTasks) {
+        tasks = JSON.parse(savedTasks); //загрузить сохраненные задачи
+        taskId = tasks.length ? tasks[tasks.length - 1].id + 1 : 1; // устанавить корректный ID
+        render(); // отобразить задачи
+    }
+    
+    const savedName = localStorage.getItem('userName');
+    if (savedName) {
+        userNameDisplay.innerText = `, ${savedName}!`;
+        loadTasks(savedName);
+    } else {
+        userNameDisplay.innerText = ', гость!';
+        loadTasks('guest');
+    }
 };
 
-modalName.addEventListener('input', () => {
-    autoResizeTextarea(modalName);
-});
+const loadTasks = (userName) => {
+    const savedTasks = localStorage.getItem(`tasks_${userName}`);
+    if (savedTasks) {
+        tasks = JSON.parse(savedTasks); // Загружаем задачи из localStorage
+        taskId = tasks.length ? tasks[tasks.length - 1].id + 1 : 1; // Устанавливаем корректный ID
+    } else {
+        tasks = []; // Если задач нет, создаем пустой список
+        taskId = 1;
+    }
+    render()
+};
 
 const openModal = (task) => {
     modal.classList.remove('hidden');
@@ -27,59 +54,69 @@ const openModal = (task) => {
     autoResizeTextarea(modalName);
 };
 
-addBtn.addEventListener('click',()=>{
-    const newTask = {
-        id: taskId++,
-        name: taskNameInput.value,
-        completed: false
+const autoResizeTextarea = (textarea) => {
+    textarea.style.height = 'auto'; // сброс высоты
+    textarea.style.height = textarea.scrollHeight + 'px'; //высотa в зависимости от высоты содержимого
+};
+
+modalName.addEventListener('input', () => {
+    autoResizeTextarea(modalName);
+});
+
+addBtn.addEventListener('click', () => {
+    const taskName = taskNameInput.value.trim();
+    if (taskName) {
+        const newTask = {
+            id: taskId++,
+            name: taskName,
+            completed: false
+        };
+        taskNameInput.value = '';
+        tasks.push(newTask);
+        saveTasksToLocalStorage(); // Сохранение в localStorage
+        render();
+    } else {
+        alert('Введите текст задачи');
     }
-    taskNameInput.value=''
-    tasks.push(newTask)
-    render()
-})
-saveBtn.addEventListener('click',()=>{
-    const newId = modalId.value
-    const newName= modalName.value
-    tasks.map((task)=>{
-        if (task.id === Number(newId)){
-            task.name= newName
-            task.completed= false
+});
+
+saveBtn.addEventListener('click', () => {
+    const newId = modalId.value;
+    const newName = modalName.value.trim()
+    tasks = tasks.map(task => {
+        if (task.id === Number(newId)) {
+            task.name = newName;
         }
-    })
-    render()
-    modal.classList.add('hidden')
-})
-
-document.getElementById('showAllBtn').addEventListener('click', () => {
-    filter = 'all';
+        return task;
+    });
+    saveTasksToLocalStorage();
     render();
+    modal.classList.add('hidden');
 });
 
-document.getElementById('showCompletedBtn').addEventListener('click', () => {
-    filter = 'completed';
-    render();
-});
+const saveTasksToLocalStorage = () => {
+    const currentUser = localStorage.getItem('userName') || 'guest'; 
+    localStorage.setItem(`tasks_${currentUser}`, JSON.stringify(tasks)); 
+};
 
-document.getElementById('showUncompletedBtn').addEventListener('click', () => {
-    filter = 'uncompleted';
-    render();
-});
+const toggleTaskStatus = (task) => {
+    task.completed = !task.completed;
+    saveTasksToLocalStorage();
+};
 
 const render = () => {
-    tasks.sort((a, b) => a.completed - b.completed);
-
     container.innerHTML=''
 
     let filteredTasks = tasks;
-    if (filter === 'completed') {
-        filteredTasks = tasks.filter(task => task.completed);
-    } else if (filter === 'uncompleted') {
-        filteredTasks = 
-        tasks.filter(task => !task.completed);
-    }
+        if (filter === 'completed') {
+            filteredTasks = tasks.filter(task => task.completed);
+        } else if (filter === 'uncompleted') {
+            filteredTasks = 
+            tasks.filter(task => !task.completed);
+        }
     filteredTasks.sort((a, b) => a.completed - b.completed);
 
-   filteredTasks.forEach((task)=>{
+    filteredTasks.forEach((task)=>{
         const taskDiv=document.createElement('div')
         taskDiv.classList.add("task-div")
         taskDiv.style.backgroundColor = task.completed ? 'green' : 'rgb(205, 235, 221)';//изменение цвета фона в зависимости от статуса задачи
@@ -95,7 +132,8 @@ const render = () => {
         deleteBtn.classList.add('delete-btn')
         deleteBtn.innerText= "Удалить"
         deleteBtn.onclick=()=>{
-            tasks= tasks.filter((item)=> item.id !== task.id)
+            tasks= tasks.filter((item)=> item.id !== task.id);
+            saveTasksToLocalStorage();
             render()
         }
 
@@ -105,17 +143,26 @@ const render = () => {
         editBtn.onclick=()=>{
             openModal(task);
         }
+
         taskDiv.ondblclick = () => {
             openModal(task);
         };
-
-        const statusBtn = document.createElement('button')
-        statusBtn.classList.add('status-btn')
-        statusBtn.innerText = task.completed ? 'Задача выполнена' : 'Выполнить задачу';
-        statusBtn.onclick = () => {
-            task.completed = !task.completed;
-            render();
-        };
+ 
+        // const statusBtn = document.createElement('button')
+        // statusBtn.classList.add('status-btn')
+        // statusBtn.innerText = task.completed ? 'Задача выполнена' : 'Выполнить задачу';
+        // statusBtn.onclick = () => {
+        //     task.completed = !task.completed;
+        //     saveTasksToLocalStorage();
+        //     render();
+        // };
+        const statusBtn = document.createElement('button');
+statusBtn.classList.add('status-btn');
+statusBtn.innerText = task.completed ? 'Задача выполнена' : 'Выполнить задачу';
+statusBtn.onclick = () => {
+    toggleTaskStatus(task);  // Изменение статуса задачи
+    
+};
         
         taskActions.appendChild(statusBtn)
         taskActions.appendChild(deleteBtn)
@@ -127,3 +174,18 @@ const render = () => {
         container.appendChild(taskDiv)
     })
 }
+
+document.getElementById('showAllBtn').addEventListener('click', () => {
+    filter = 'all';
+    render();
+});
+
+document.getElementById('showCompletedBtn').addEventListener('click', () => {
+    filter = 'completed';
+    render();
+});
+
+document.getElementById('showUncompletedBtn').addEventListener('click', () => {
+    filter = 'uncompleted';
+    render();
+});
