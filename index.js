@@ -87,9 +87,10 @@ saveBtn.addEventListener('click', () => {
         if (task.id === Number(newId)) {
             task.name = newName;
 
-            if (task.completed) {
-                task.completed = false;
-            }
+           //функционал смены статуса задачи( меняет цвет если задача была отредактирована)
+            // if (task.completed) {
+            //     task.completed = false;
+            // }
         }
         return task;
     });
